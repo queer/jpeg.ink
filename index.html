@@ -122,6 +122,13 @@
         ctx.restore()
         console.log(">> canvas: grad")
 
+        // Render drop shadow
+        ctx.shadowColor = "black"
+        ctx.shadowBlur = 16
+        ctx.fillStyle = "rgba(0, 0, 0, 1)"
+        ctx.fillRect(o / 2 + 4, o / 2 + 4, w - 2 * (o / 2) - 8, h - 2 * (o / 2) - 8)
+        console.log(">> canvas: shadow")
+
         // Set up image clipping
         round(ctx, 16, o / 2, o / 2, w - o, h - o)
         ctx.clip()
@@ -153,17 +160,17 @@
       }
 
       function round(ctx, radius, x, y, width, height) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
+        ctx.beginPath()
+        ctx.moveTo(x + radius, y)
+        ctx.lineTo(x + width - radius, y)
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+        ctx.lineTo(x + width, y + height - radius)
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+        ctx.lineTo(x + radius, y + height)
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+        ctx.lineTo(x, y + radius)
+        ctx.quadraticCurveTo(x, y, x + radius, y)
+        ctx.closePath()
       }
     </script>
   </body>
