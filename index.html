@@ -8,8 +8,8 @@
     <meta name="author" content="amy (amy.gg)" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/color-scheme/1.0.1/color-scheme.min.js"
       integrity="sha512-ydx5bZFmGCeWWXk49Il8XjyZmYJUfR8sQDGo8CUHvlcwNJ1B9PvRwZzil3/LpJn9s02BKEdWXDK+8vQKaij96A=="
@@ -18,8 +18,10 @@
     <script src="https://unpkg.com/create-conical-gradient@latest/umd/create-conical-gradient.min.js"></script>
 
     <style>
-      html, body {
-        font-family: "Ubuntu", sans-serif
+      html,
+      body {
+        font-family: "Ubuntu", sans-serif;
+        overflow: hidden;
       }
       img.preview {
         width: 100%;
@@ -30,13 +32,26 @@
       }
 
       div.opts {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+        display: grid;
+        width: max-content;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        max-width: 100%;
+        overflow-x: scroll;
       }
-      
-      div.opts > :not(:last-child) {
-        margin-right: 1em;
+
+      div.opts > * {
+        display: flex;
+        align-items: flex-end;
+        align-content: flex-end;
+        justify-content: center;
+      }
+
+      div.opts > div.nobottom {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
       }
     </style>
   </head>
@@ -49,11 +64,53 @@
     <main>
       <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
       <div class="opts">
+        <!-- first row -->
         <div>
-          <input type="checkbox" id="watermark" checked onchange="preview(document.getElementById('file'))" autocomplete="off" />
           <label for="watermark">watermark?</label>
         </div>
-        <button onclick="preview(document.getElementById('file'))">Change gradient!</button>
+        <div>
+          <label for="padding">padding</label>
+        </div>
+        <div>
+          <label for="radius">rounding</label>
+        </div>
+        <div>
+          <label for="grad">change gradient</label>
+        </div>
+
+        <!-- second row -->
+        <div class="nobottom">
+          <input
+            type="checkbox"
+            id="watermark"
+            checked
+            onchange="preview(document.getElementById('file'))"
+            autocomplete="off"
+          />
+        </div>
+        <div>
+          <select id="padding" onchange="preview(document.getElementById('file'))" autocomplete="off">
+            <option value="0">0px</option>
+            <option value="16">16px</option>
+            <option value="32">32px</option>
+            <option selected value="64">64px</option>
+            <option value="128">128px</option>
+          </select>
+        </div>
+        <div>
+          <select id="radius" onchange="preview(document.getElementById('file'))" autocomplete="off">
+            <option value="0">0px</option>
+            <option value="4">4px</option>
+            <option value="8">8px</option>
+            <option selected value="16">16px</option>
+            <option value="32">32px</option>
+            <option value="64">64px</option>
+            <option value="128">128px</option>
+          </select>
+        </div>
+        <div>
+          <button onclick="cycleGradient();preview(document.getElementById('file'))" id="grad">change!</button>
+        </div>
       </div>
 
       <div>
@@ -81,6 +138,8 @@
     </footer>
 
     <script>
+      let gradientColours = nextGradient()
+
       function preview(input) {
         if (input && input.files && input.files.length === 1 && input.files[0]) {
           const reader = new FileReader()
@@ -106,29 +165,21 @@
         const ctx = canvas.getContext("2d")
 
         // Set up canvas
-        const o = 128
+        const watermark = document.getElementById("watermark").checked
+        const p = parseInt(document.getElementById("padding").value)
+        const r = parseInt(document.getElementById("radius").value)
+        const o = p * 2
         const w = img.width + o
         const h = img.height + o
         ctx.canvas.width = w
         ctx.canvas.height = h
         console.log(">> canvas: setup")
 
-        // Generate colours
-        const palette = new ColorScheme()
-        palette.scheme("triade")
-
         // Draw gradient
         const grad = ctx.createConicalGradient(w / 2, h / 2, -Math.PI, Math.PI)
-        console.log(rand(palette.colors()))
-        const colours = [
-          rand(palette.colors()),
-          rand(palette.colors()),
-          rand(palette.colors()),
-          rand(palette.colors()),
-          rand(palette.colors()),
-        ]
-        console.log(">> gradient:", colours)
-        const [one, two, three, four, five] = colours
+        console.log(">> gradient:", gradientColours)
+
+        const [one, two, three, four, five] = gradientColours
         grad.addColorStop(0, one)
         grad.addColorStop(0.2, two)
         grad.addColorStop(0.4, three)
@@ -137,7 +188,8 @@
         grad.addColorStop(1, one)
         console.log(grad.pattern)
 
-        round(ctx, 16, 0, 0, w, h)
+        round(ctx, r, 0, 0, w, h)
+        ctx.save()
         ctx.clip()
         ctx.fillStyle = grad.pattern
         ctx.fillRect(0, 0, w, h)
@@ -151,22 +203,23 @@
         ctx.fillRect(o / 2 + 4, o / 2 + 4, w - 2 * (o / 2) - 8, h - 2 * (o / 2) - 8)
         console.log(">> canvas: shadow")
 
-        // Render watermark
-        if(document.getElementById("watermark").checked) {
-          ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
-          ctx.font = "16px Ubuntu"
-          ctx.fillText("made with jpeg.ink", 8, h - 8)
-          console.log(">> canvas: watermark")
-        }
-
         // Set up image clipping
-        round(ctx, 16, o / 2, o / 2, w - o, h - o)
+        round(ctx, r, o / 2, o / 2, w - o, h - o)
+        ctx.save()
         ctx.clip()
 
         // Render image
         ctx.drawImage(img, o / 2, o / 2)
         ctx.restore()
         console.log(">> canvas: img")
+
+        // Render watermark
+        if (watermark) {
+          ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+          ctx.font = "16px Ubuntu"
+          ctx.fillText("made with jpeg.ink", 8, h - 8)
+          console.log(">> canvas: watermark")
+        }
 
         // Render preview
         // This happens after a small timeout to allow DOM updates to happen.
@@ -201,6 +254,23 @@
         ctx.lineTo(x, y + radius)
         ctx.quadraticCurveTo(x, y, x + radius, y)
         ctx.closePath()
+      }
+
+      function nextGradient() {
+        // Generate colours
+        const palette = new ColorScheme()
+        palette.scheme("triade")
+        return [
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+        ]
+      }
+
+      function cycleGradient() {
+        gradientColours = nextGradient()
       }
     </script>
   </body>
