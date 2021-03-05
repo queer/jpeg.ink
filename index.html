@@ -113,8 +113,6 @@
                 <option value="8">8px</option>
                 <option value="16">16px</option>
                 <option value="32">32px</option>
-                <option value="64">64px</option>
-                <option value="128">128px</option>
               </select>
             </div>
             <div>
@@ -233,7 +231,6 @@
         grad.addColorStop(0.6, four)
         grad.addColorStop(0.8, five)
         grad.addColorStop(1, one)
-        console.log(grad.pattern)
 
         round(ctx, r, 0, 0, w, h)
         ctx.save()
@@ -244,15 +241,35 @@
         console.log(">> canvas: grad")
 
         // Render drop shadow
+        const so = r >= 32 ? 8 : 4
+        const so2 = so * 2
         ctx.shadowColor = "black"
-        ctx.shadowBlur = 16
+        ctx.shadowBlur = 32
+        ctx.shadowOffsetY = 8
         ctx.fillStyle = "rgba(0, 0, 0, 1)"
-        ctx.fillRect(o / 2 + 4, o / 2 + 4, w - 2 * (o / 2) - 8, h - 2 * (o / 2) - 8)
+        const [sx, sy, sw, sh] = [o / 2 + so, o / 2 + so, w - 2 * (o / 2) - so2, h - 2 * (o / 2) - so2]
+        ctx.fillRect(sx, sy, sw, sh)
         console.log(">> canvas: shadow")
 
-        // Set up image clipping
-        round(ctx, r, o / 2, o / 2, w - o, h - o)
+        // Abuse composite to clean up the temp rect
+        // ctx.globalCompositeOperation = "destination-out"
+        // ctx.fillStyle = "rgba(255, 255, 255, 1)"
+        // ctx.fillRect(sx, sy, sw, sh)
+        // ctx.globalCompositeOperation = "source-over"
+        // console.log(">> canvas: clip shadow")
+
+        // Rerender the gradient to clean up the clip
+        rect(ctx, sx, sy, sw, sh)
         ctx.save()
+        ctx.clip()
+        ctx.fillStyle = grad.pattern
+        ctx.fillRect(0, 0, w, h)
+        ctx.restore()
+        console.log(">> canvas: refill gradient")
+
+        // Set up image clipping
+        ctx.save()
+        round(ctx, r, o / 2, o / 2, w - o, h - o)
         ctx.clip()
 
         // Render image
@@ -295,6 +312,16 @@
         return "#" + arr[Math.floor(Math.random() * arr.length)]
       }
 
+      function rect(ctx, x, y, width, height) {
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+        ctx.lineTo(x + width, y)
+        ctx.lineTo(x + width, y + height)
+        ctx.lineTo(x, y + height)
+        ctx.lineTo(x, y)
+        ctx.closePath()
+      }
+
       function round(ctx, radius, x, y, width, height) {
         ctx.beginPath()
         ctx.moveTo(x + radius, y)
@@ -307,6 +334,21 @@
         ctx.lineTo(x, y + radius)
         ctx.quadraticCurveTo(x, y, x + radius, y)
         ctx.closePath()
+      }
+
+      function roundRegion(radius, x, y, width, height) {
+        const region = new Path2D()
+        region.moveTo(x + radius, y)
+        region.lineTo(x + width - radius, y)
+        region.quadraticCurveTo(x + width, y, x + width, y + radius)
+        region.lineTo(x + width, y + height - radius)
+        region.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+        region.lineTo(x + radius, y + height)
+        region.quadraticCurveTo(x, y + height, x, y + height - radius)
+        region.lineTo(x, y + radius)
+        region.quadraticCurveTo(x, y, x + radius, y)
+        region.closePath()
+        return region
       }
 
       function nextGradient() {
