@@ -224,7 +224,7 @@
         // Render preview
         // This happens after a small timeout to allow DOM updates to happen.
         setTimeout(() => {
-          const jpg = canvas.toDataURL("image/jpg")
+          const jpg = canvas.toDataURL("image/jpeg")
           document.getElementById("jpg").src = jpg
           document.getElementById("open-jpg").href = jpg
           document.getElementById("jpg-loader").style.display = "none"
