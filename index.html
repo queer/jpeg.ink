@@ -121,22 +121,22 @@
           </div>
         </details>
 
-        <div>
+        <div id="jpeg-container">
           <h3>jpeg<span style="display: none" id="jpeg-loader">: rendering...</span></h3>
           <a id="open-jpeg" href="#" target="_blank" rel="noopener">
             <img src="" id="jpeg" class="preview" alt="no image yet!" />
           </a>
         </div>
 
-        <div>
+        <div id="png-container">
           <h3>png<span style="display: none" id="png-loader">: rendering...</span></h3>
           <a id="open-png" href="#" target="_blank" rel="noopener">
             <img src="" id="png" class="preview" alt="no image yet!" />
           </a>
         </div>
 
-        <div>
-          <h3>webp (chrome(ium) only!)<span style="display: none" id="webp-loader">: rendering...</span></h3>
+        <div id="webp-container">
+          <h3>webp<span style="display: none" id="webp-loader">: rendering...</span></h3>
           <a id="open-webp" href="#" target="_blank" rel="noopener">
             <img src="" id="webp" class="preview" alt="no image yet!" />
           </a>
@@ -154,7 +154,7 @@
           </p>
           <p>
             <strong>warning:</strong> webp is currently only supported in chromium. other browsers will render a png
-            instead. see
+            instead, so this is feature-detected to make sure it's doable. see
             <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL">mdn</a> for more
             info.
           </p>
@@ -183,6 +183,19 @@
 
     <script>
       let gradientColours = nextGradient()
+      let webpSupport = true
+      const checkWebpSupport = () => {
+        const c = document.createElement("canvas")
+        const u = c.toDataURL("image/webp")
+        if (u.startsWith("data:image/png")) {
+          webpSupport = false
+        }
+        console.log(">> webp: supported?", webpSupport)
+        if (!webpSupport) {
+          document.getElementById("webp-container").style.display = "none"
+        }
+      }
+      checkWebpSupport()
 
       function preview(input) {
         if (input && input.files && input.files.length === 1 && input.files[0]) {
