@@ -21,7 +21,7 @@
       html,
       body {
         font-family: "Ubuntu", sans-serif;
-        overflow: hidden;
+        overflow-x: hidden;
       }
       img.preview {
         width: 100%;
@@ -59,6 +59,31 @@
     <header>
       <h1>jpeg.ink</h1>
       <h3>select an image to make it pretty!</h3>
+
+      <details>
+        <summary>how it works</summary>
+        <p>
+          <strong>warning:</strong> jpeg images do <em>not</em> support transparency! they will have black behind the
+          rounded borders. if you want the rounded borders, use png or webp.
+        </p>
+        <p>
+          <strong>warning:</strong> webp is currently only supported in chromium. other browsers will render a png
+          instead. see
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL">mdn</a> for more info.
+        </p>
+        <ol>
+          <li>gradient colours are chosen</li>
+          <li>a canvas sized to your image + padding is created</li>
+          <li>gradient is rendered</li>
+          <li>box shadow is rendered</li>
+          <li>image is rendered</li>
+          <li>if enabled, watermark is rendered</li>
+          <li>
+            a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs">data url</a> is
+            generated for each kind of image, and then is set as the corresponding image tag's source attribute
+          </li>
+        </ol>
+      </details>
     </header>
 
     <main>
@@ -114,16 +139,23 @@
       </div>
 
       <div>
-        <h3>jpg <span style="display: none" id="jpg-loader">Rendering...</span></h3>
-        <a id="open-jpg" href="#" target="_blank" rel="noopener">
-          <img src="" id="jpg" class="preview" alt="no image yet!" />
+        <h3>jpeg<span style="display: none" id="jpeg-loader">: rendering...</span></h3>
+        <a id="open-jpeg" href="#" target="_blank" rel="noopener">
+          <img src="" id="jpeg" class="preview" alt="no image yet!" />
         </a>
       </div>
 
       <div>
-        <h3>png <span style="display: none" id="png-loader">Rendering...</span></h3>
+        <h3>png<span style="display: none" id="png-loader">: rendering...</span></h3>
         <a id="open-png" href="#" target="_blank" rel="noopener">
           <img src="" id="png" class="preview" alt="no image yet!" />
+        </a>
+      </div>
+
+      <div>
+        <h3>webp (chrome(ium) only!)<span style="display: none" id="webp-loader">: rendering...</span></h3>
+        <a id="open-webp" href="#" target="_blank" rel="noopener">
+          <img src="" id="webp" class="preview" alt="no image yet!" />
         </a>
       </div>
 
@@ -131,9 +163,9 @@
     </main>
 
     <footer class="footer">
-      <div style="margin-right: auto">made by <a href="https://amy.gg">amy</a></div>
+      <div style="margin-right: auto">made by <a href="https://amy.gg" target="_blank" rel="noopener">amy</a></div>
       <div>
-        <a href="https://github.com/queer/jpeg.ink">view source</a>
+        <a href="https://github.com/queer/jpeg.ink" target="_blank" rel="noopener">view source</a>
       </div>
     </footer>
 
@@ -157,8 +189,9 @@
       }
 
       function renderToCanvas(img) {
-        document.getElementById("jpg-loader").style.display = "inline"
+        document.getElementById("jpeg-loader").style.display = "inline"
         document.getElementById("png-loader").style.display = "inline"
+        document.getElementById("webp-loader").style.display = "inline"
         console.log(">> set: rendering=true")
 
         const canvas = document.getElementById("renderer")
@@ -224,17 +257,23 @@
         // Render preview
         // This happens after a small timeout to allow DOM updates to happen.
         setTimeout(() => {
-          const jpg = canvas.toDataURL("image/jpeg")
-          document.getElementById("jpg").src = jpg
-          document.getElementById("open-jpg").href = jpg
-          document.getElementById("jpg-loader").style.display = "none"
-          console.log(">> preview: jpg")
+          const jpeg = canvas.toDataURL("image/jpeg")
+          document.getElementById("jpeg").src = jpeg
+          document.getElementById("open-jpeg").href = jpeg
+          document.getElementById("jpeg-loader").style.display = "none"
+          console.log(">> preview: jpeg")
 
           const png = canvas.toDataURL("image/png")
           document.getElementById("png").src = png
           document.getElementById("open-png").href = png
           document.getElementById("png-loader").style.display = "none"
           console.log(">> preview: png")
+
+          const webp = canvas.toDataURL("image/webp")
+          document.getElementById("webp").src = webp
+          document.getElementById("open-webp").href = webp
+          document.getElementById("webp-loader").style.display = "none"
+          console.log(">> preview: webp")
         }, 10)
       }
 
