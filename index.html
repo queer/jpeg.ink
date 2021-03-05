@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jpeg.ink - Make any image pretty</title>
+    <meta name="description" content="Make any image pretty with a gradient!" />
+    <meta name="author" content="amy (amy.gg)" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/color-scheme/1.0.1/color-scheme.min.js"
+      integrity="sha512-ydx5bZFmGCeWWXk49Il8XjyZmYJUfR8sQDGo8CUHvlcwNJ1B9PvRwZzil3/LpJn9s02BKEdWXDK+8vQKaij96A=="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/create-conical-gradient@latest/umd/create-conical-gradient.min.js"></script>
+
+    <style>
+      img.preview {
+        width: 100%;
+      }
+      footer.footer {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>jpeg.ink</h1>
+      <h3>select an image to make it pretty!</h3>
+    </header>
+
+    <main>
+      <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
+      <button onclick="preview(document.getElementById('file'))">Change gradient!</button>
+
+      <div>
+        <h3>jpg <span style="display: none" id="jpg-loader">Rendering...</span></h3>
+        <a id="open-jpg" href="#" target="_blank" rel="noopener">
+          <img src="" id="jpg" class="preview" alt="no image yet!" />
+        </a>
+      </div>
+
+      <div>
+        <h3>png <span style="display: none" id="png-loader">Rendering...</span></h3>
+        <a id="open-png" href="#" target="_blank" rel="noopener">
+          <img src="" id="png" class="preview" alt="no image yet!" />
+        </a>
+      </div>
+
+      <canvas id="renderer" style="display: none"></canvas>
+    </main>
+
+    <footer class="footer">
+      <div style="margin-right: auto">made by <a href="https://amy.gg">amy</a></div>
+      <div>
+        <a href="https://github.com/queer/jpeg.ink">view source</a>
+      </div>
+    </footer>
+
+    <script>
+      function preview(input) {
+        if (input && input.files && input.files.length === 1 && input.files[0]) {
+          const reader = new FileReader()
+
+          reader.addEventListener("load", () => {
+            const img = new Image()
+            img.src = reader.result
+            img.onload = () => {
+              renderToCanvas(img)
+            }
+          })
+
+          reader.readAsDataURL(input.files[0])
+        }
+      }
+
+      function renderToCanvas(img) {
+        document.getElementById("jpg-loader").style.display = "inline"
+        document.getElementById("png-loader").style.display = "inline"
+        console.log(">> set: rendering=true")
+
+        const canvas = document.getElementById("renderer")
+        const ctx = canvas.getContext("2d")
+
+        // Set up canvas
+        const o = 128
+        const w = img.width + o
+        const h = img.height + o
+        ctx.canvas.width = w
+        ctx.canvas.height = h
+        console.log(">> canvas: setup")
+
+        // Generate colours
+        const palette = new ColorScheme()
+        palette.scheme("triade")
+
+        // Draw gradient
+        const grad = ctx.createConicalGradient(w / 2, h / 2, -Math.PI, Math.PI)
+        console.log(rand(palette.colors()))
+        const colours = [
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+          rand(palette.colors()),
+        ]
+        console.log(">> gradient:", colours)
+        const [one, two, three, four, five] = colours
+        grad.addColorStop(0, one)
+        grad.addColorStop(0.2, two)
+        grad.addColorStop(0.4, three)
+        grad.addColorStop(0.6, four)
+        grad.addColorStop(0.8, five)
+        grad.addColorStop(1, one)
+        console.log(grad.pattern)
+
+        round(ctx, 16, 0, 0, w, h)
+        ctx.clip()
+        ctx.fillStyle = grad.pattern
+        ctx.fillRect(0, 0, w, h)
+        ctx.restore()
+        console.log(">> canvas: grad")
+
+        // Set up image clipping
+        round(ctx, 16, o / 2, o / 2, w - o, h - o)
+        ctx.clip()
+
+        // Render image
+        ctx.drawImage(img, o / 2, o / 2)
+        ctx.restore()
+        console.log(">> canvas: img")
+
+        // Render preview
+        // This happens after a small timeout to allow DOM updates to happen.
+        setTimeout(() => {
+          const jpg = canvas.toDataURL("image/jpg")
+          document.getElementById("jpg").src = jpg
+          document.getElementById("open-jpg").href = jpg
+          document.getElementById("jpg-loader").style.display = "none"
+          console.log(">> preview: jpg")
+
+          const png = canvas.toDataURL("image/png")
+          document.getElementById("png").src = png
+          document.getElementById("open-png").href = png
+          document.getElementById("png-loader").style.display = "none"
+          console.log(">> preview: png")
+        }, 10)
+      }
+
+      function rand(arr) {
+        return "#" + arr[Math.floor(Math.random() * arr.length)]
+      }
+
+      function round(ctx, radius, x, y, width, height) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+    </script>
+  </body>
+</html>
