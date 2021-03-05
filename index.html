@@ -8,6 +8,8 @@
     <meta name="author" content="amy (amy.gg)" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/color-scheme/1.0.1/color-scheme.min.js"
       integrity="sha512-ydx5bZFmGCeWWXk49Il8XjyZmYJUfR8sQDGo8CUHvlcwNJ1B9PvRwZzil3/LpJn9s02BKEdWXDK+8vQKaij96A=="
@@ -16,11 +18,25 @@
     <script src="https://unpkg.com/create-conical-gradient@latest/umd/create-conical-gradient.min.js"></script>
 
     <style>
+      html, body {
+        font-family: "Ubuntu", sans-serif
+      }
       img.preview {
         width: 100%;
       }
+
       footer.footer {
         display: flex;
+      }
+
+      div.opts {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      
+      div.opts > :not(:last-child) {
+        margin-right: 1em;
       }
     </style>
   </head>
@@ -32,7 +48,13 @@
 
     <main>
       <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
-      <button onclick="preview(document.getElementById('file'))">Change gradient!</button>
+      <div class="opts">
+        <div>
+          <input type="checkbox" id="watermark" checked onchange="preview(document.getElementById('file'))" autocomplete="off" />
+          <label for="watermark">watermark?</label>
+        </div>
+        <button onclick="preview(document.getElementById('file'))">Change gradient!</button>
+      </div>
 
       <div>
         <h3>jpg <span style="display: none" id="jpg-loader">Rendering...</span></h3>
@@ -128,6 +150,14 @@
         ctx.fillStyle = "rgba(0, 0, 0, 1)"
         ctx.fillRect(o / 2 + 4, o / 2 + 4, w - 2 * (o / 2) - 8, h - 2 * (o / 2) - 8)
         console.log(">> canvas: shadow")
+
+        // Render watermark
+        if(document.getElementById("watermark").checked) {
+          ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+          ctx.font = "16px Ubuntu"
+          ctx.fillText("made with jpeg.ink", 8, h - 8)
+          console.log(">> canvas: watermark")
+        }
 
         // Set up image clipping
         round(ctx, 16, o / 2, o / 2, w - o, h - o)
