@@ -37,7 +37,6 @@
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr;
         max-width: 100%;
-        overflow-x: scroll;
       }
 
       div.opts > * {
@@ -53,113 +52,127 @@
         align-content: center;
         justify-content: center;
       }
+
+      @media screen and (max-width: 768px) {
+        div.opts {
+          overflow-x: scroll;
+        }
+      }
     </style>
   </head>
   <body>
     <header>
       <h1>jpeg.ink</h1>
       <h3>select an image to make it pretty!</h3>
-
-      <details>
-        <summary>how it works</summary>
-        <p>
-          <strong>warning:</strong> jpeg images do <em>not</em> support transparency! they will have black behind the
-          rounded borders. if you want the rounded borders, use png or webp.
-        </p>
-        <p>
-          <strong>warning:</strong> webp is currently only supported in chromium. other browsers will render a png
-          instead. see
-          <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL">mdn</a> for more info.
-        </p>
-        <ol>
-          <li>gradient colours are chosen</li>
-          <li>a canvas sized to your image + padding is created</li>
-          <li>gradient is rendered</li>
-          <li>box shadow is rendered</li>
-          <li>image is rendered</li>
-          <li>if enabled, watermark is rendered</li>
-          <li>
-            a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs">data url</a> is
-            generated for each kind of image, and then is set as the corresponding image tag's source attribute
-          </li>
-        </ol>
-      </details>
     </header>
 
     <main>
-      <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
-      <div class="opts">
-        <!-- first row -->
+      <section>
+        <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
+        <details>
+          <summary>options</summary>
+          <div class="opts">
+            <!-- first row -->
+            <div>
+              <label for="watermark">watermark?</label>
+            </div>
+            <div>
+              <label for="padding">padding</label>
+            </div>
+            <div>
+              <label for="radius">rounding</label>
+            </div>
+            <div>
+              <label for="grad">change gradient</label>
+            </div>
+
+            <!-- second row -->
+            <div class="nobottom">
+              <input
+                type="checkbox"
+                id="watermark"
+                checked
+                onchange="preview(document.getElementById('file'))"
+                autocomplete="off"
+              />
+            </div>
+            <div>
+              <select id="padding" onchange="preview(document.getElementById('file'))" autocomplete="off">
+                <option value="0">0px</option>
+                <option value="16">16px</option>
+                <option selected value="32">32px</option>
+                <option value="64">64px</option>
+                <option value="128">128px</option>
+              </select>
+            </div>
+            <div>
+              <select id="radius" onchange="preview(document.getElementById('file'))" autocomplete="off">
+                <option value="0">0px</option>
+                <option selected value="4">4px</option>
+                <option value="8">8px</option>
+                <option value="16">16px</option>
+                <option value="32">32px</option>
+                <option value="64">64px</option>
+                <option value="128">128px</option>
+              </select>
+            </div>
+            <div>
+              <button onclick="cycleGradient();preview(document.getElementById('file'))" id="grad">change!</button>
+            </div>
+          </div>
+        </details>
+
         <div>
-          <label for="watermark">watermark?</label>
-        </div>
-        <div>
-          <label for="padding">padding</label>
-        </div>
-        <div>
-          <label for="radius">rounding</label>
-        </div>
-        <div>
-          <label for="grad">change gradient</label>
+          <h3>jpeg<span style="display: none" id="jpeg-loader">: rendering...</span></h3>
+          <a id="open-jpeg" href="#" target="_blank" rel="noopener">
+            <img src="" id="jpeg" class="preview" alt="no image yet!" />
+          </a>
         </div>
 
-        <!-- second row -->
-        <div class="nobottom">
-          <input
-            type="checkbox"
-            id="watermark"
-            checked
-            onchange="preview(document.getElementById('file'))"
-            autocomplete="off"
-          />
-        </div>
         <div>
-          <select id="padding" onchange="preview(document.getElementById('file'))" autocomplete="off">
-            <option value="0">0px</option>
-            <option value="16">16px</option>
-            <option selected value="32">32px</option>
-            <option value="64">64px</option>
-            <option value="128">128px</option>
-          </select>
+          <h3>png<span style="display: none" id="png-loader">: rendering...</span></h3>
+          <a id="open-png" href="#" target="_blank" rel="noopener">
+            <img src="" id="png" class="preview" alt="no image yet!" />
+          </a>
         </div>
+
         <div>
-          <select id="radius" onchange="preview(document.getElementById('file'))" autocomplete="off">
-            <option value="0">0px</option>
-            <option selected value="4">4px</option>
-            <option value="8">8px</option>
-            <option value="16">16px</option>
-            <option value="32">32px</option>
-            <option value="64">64px</option>
-            <option value="128">128px</option>
-          </select>
+          <h3>webp (chrome(ium) only!)<span style="display: none" id="webp-loader">: rendering...</span></h3>
+          <a id="open-webp" href="#" target="_blank" rel="noopener">
+            <img src="" id="webp" class="preview" alt="no image yet!" />
+          </a>
         </div>
-        <div>
-          <button onclick="cycleGradient();preview(document.getElementById('file'))" id="grad">change!</button>
-        </div>
-      </div>
 
-      <div>
-        <h3>jpeg<span style="display: none" id="jpeg-loader">: rendering...</span></h3>
-        <a id="open-jpeg" href="#" target="_blank" rel="noopener">
-          <img src="" id="jpeg" class="preview" alt="no image yet!" />
-        </a>
-      </div>
+        <canvas id="renderer" style="display: none"></canvas>
+      </section>
 
-      <div>
-        <h3>png<span style="display: none" id="png-loader">: rendering...</span></h3>
-        <a id="open-png" href="#" target="_blank" rel="noopener">
-          <img src="" id="png" class="preview" alt="no image yet!" />
-        </a>
-      </div>
-
-      <div>
-        <h3>webp (chrome(ium) only!)<span style="display: none" id="webp-loader">: rendering...</span></h3>
-        <a id="open-webp" href="#" target="_blank" rel="noopener">
-          <img src="" id="webp" class="preview" alt="no image yet!" />
-        </a>
-      </div>
-
-      <canvas id="renderer" style="display: none"></canvas>
+      <section>
+        <details>
+          <summary>how it works</summary>
+          <p>
+            <strong>warning:</strong> jpeg images do <em>not</em> support transparency! they will have black behind the
+            rounded borders. if you want the rounded borders, use png or webp.
+          </p>
+          <p>
+            <strong>warning:</strong> webp is currently only supported in chromium. other browsers will render a png
+            instead. see
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL">mdn</a> for more
+            info.
+          </p>
+          <ol>
+            <li>gradient colours are chosen</li>
+            <li>a canvas sized to your image + padding is created</li>
+            <li>gradient is rendered</li>
+            <li>box shadow is rendered</li>
+            <li>image is rendered</li>
+            <li>if enabled, watermark is rendered</li>
+            <li>
+              a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs">data url</a> is
+              generated for each kind of image, and then is set as the corresponding image tag's source attribute
+            </li>
+          </ol>
+        </details>
+      </section>
     </main>
 
     <footer class="footer">
