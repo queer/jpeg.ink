@@ -144,27 +144,25 @@ function renderToCanvas(img) {
   //       indicate status to the end-user, then render, then do this off
   //       of the main thread to avoid blocking until the last minute
   setTimeout(() => {
-    const jpeg = canvas.toDataURL("image/jpeg")
-    document.getElementById("jpeg").src = jpeg
-    document.getElementById("open-jpeg").href = jpeg
-    document.getElementById("jpeg-loader").style.display = "none"
-    console.log(">> preview: jpeg")
+    up(canvas, "jpeg", w, h)
+    up(canvas, "png", w, h)
 
-    const png = canvas.toDataURL("image/png")
-    document.getElementById("png").src = png
-    document.getElementById("open-png").href = png
-    document.getElementById("png-loader").style.display = "none"
-    console.log(">> preview: png")
-
-    // what: don't render webp unnecessarilu
+    // what: don't render webp unnecessarily
     if(webpSupport) {
-      const webp = canvas.toDataURL("image/webp")
-      document.getElementById("webp").src = webp
-      document.getElementById("open-webp").href = webp
-      document.getElementById("webp-loader").style.display = "none"
-      console.log(">> preview: webp")
+      up(canvas, "webp", w, h)
     }
   }, 10)
+}
+
+function up(canvas, kind, w, h) {
+  // what: update all the relevant image stuff
+  const img = canvas.toDataURL(`image/${kind}`)
+  id(`${kind}`).src = img
+  id(`open-${kind}`).href = img
+  id(`${kind}-loader`).style.display = `none`
+  id(`${kind}`).width = "${w}"
+  id(`${kind}`).height = "${h}"
+  console.log(`>> preview: ${kind}`)
 }
 
 function rand(arr) {
