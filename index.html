@@ -36,7 +36,7 @@
       div.opts {
         display: grid;
         width: max-content;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr;
         max-width: 100%;
       }
@@ -59,6 +59,14 @@
         width: 8em;
       }
 
+      div.main-inputs-container {
+        display: flex;
+      }
+
+      button#grad {
+        margin-left: 1em;
+      }
+
       @media screen and (max-width: 768px) {
         div.opts {
           overflow-x: scroll;
@@ -76,7 +84,10 @@
 
     <main>
       <section>
-        <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
+        <div class="main-inputs-container">
+          <input type="file" id="file" onchange="preview(this)" autocomplete="off" accept="image/*" />
+          <button onclick="cycleGradient();preview(window.id('file'))" id="grad">change gradient</button>
+        </div>
         <details>
           <summary>options</summary>
           <div class="opts">
@@ -89,9 +100,6 @@
             </div>
             <div>
               <label for="radius">rounding</label>
-            </div>
-            <div>
-              <label for="grad">change gradient</label>
             </div>
             <div>
               <label>custom dimensions</label>
@@ -124,9 +132,6 @@
                 <option value="16">16px</option>
                 <option value="32">32px</option>
               </select>
-            </div>
-            <div>
-              <button onclick="cycleGradient();preview(window.id('file'))" id="grad">change!</button>
             </div>
             <div>
               <input type="number" id="width" placeholder="width" autocomplete="off" onchange="preview(window.id('file'))" />
