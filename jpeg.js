@@ -65,6 +65,8 @@ function renderToCanvas(img) {
   const iy = ((h - ih) / 2) - (o / 2)
   ctx.canvas.width = w
   ctx.canvas.height = h
+  // var: shape
+  const sha = document.getElementById("shape").value
   console.log(">> canvas: setup")
 
   // what: set up gradient
@@ -80,13 +82,25 @@ function renderToCanvas(img) {
   grad.addColorStop(1, one)
 
   // what: render gradient
-  round(ctx, r, 0, 0, w, h)
-  ctx.save()
-  ctx.clip()
-  ctx.fillStyle = grad.pattern
-  ctx.fillRect(0, 0, w, h)
-  ctx.restore()
-  console.log(">> canvas: grad")
+  switch(sha) {
+    case "rectangle": {
+      console.log(">> canvas: grad: rectangle")
+      round(ctx, r, 0, 0, w, h)
+      ctx.save()
+      ctx.clip()
+      ctx.fillStyle = grad.pattern
+      ctx.fillRect(0, 0, w, h)
+      ctx.restore()
+      break
+    }
+    case "circle": {
+      console.log(">> canvas: grad: circle")
+      ctx.arc(w / 2, h / 2, h / 2, 0, 2 * Math.PI)
+      ctx.fillStyle = grad.pattern
+      ctx.fill()
+      break
+    }
+  }
 
   // what: render drop shadow
   const so = r >= 32 ? 8 : 4
@@ -112,10 +126,22 @@ function renderToCanvas(img) {
   rect(ctx, sx, sy, sw, sh)
   ctx.save()
   ctx.clip()
-  ctx.fillStyle = grad.pattern
-  ctx.fillRect(0, 0, w, h)
+  switch(sha) {
+    case "rectangle": {
+      console.log(">> canvas: refill: rect")
+      ctx.fillStyle = grad.pattern
+      ctx.fillRect(0, 0, w, h)
+      break
+    }
+    case "circle": {
+      console.log(">> canvas: refill: circle")
+      ctx.arc(w / 2, h / 2, h / 2, 0, 2 * Math.PI)
+      ctx.fillStyle = grad.pattern
+      ctx.fill()
+      break
+    }
+  }
   ctx.restore()
-  console.log(">> canvas: refill gradient")
 
   // what: set up image clipping
   ctx.save()

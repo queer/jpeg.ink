@@ -50,14 +50,15 @@
         display: flex;
         align-items: flex-end;
         align-content: flex-end;
-        justify-content: center;
+        /* justify-content: center; */
+        text-align: left;
       }
 
       div.opts > div.nobottom {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         align-content: center;
-        justify-content: center;
+        /* justify-content: center; */
       }
 
       input[type="number"] {
@@ -104,7 +105,7 @@
               <label for="padding">padding</label>
             </div>
             <div>
-              <label for="radius">rounding</label>
+              <label for="radius">rounding (rect only)</label>
             </div>
             <div>
               <label>custom dimensions</label>
@@ -142,6 +143,25 @@
               <input type="number" id="width" placeholder="width" autocomplete="off" onchange="preview(window.id('file'))" />
               <input type="number" id="height" placeholder="height" autocomplete="off" onchange="preview(window.id('file'))" />
             </div>
+
+            <!-- third row -->
+            <div>
+              <label for="shape">shape</label>
+            </div>
+            <div></div>
+            <div></div>
+            <div></div>
+
+            <!-- fourth row -->
+            <div>
+              <select id="shape" onchange="preview(window.id('file'))" autocomplete="off">
+                <option selected value="rectangle">rectangle</option>
+                <option value="circle">circle</option>
+              </select>
+            </div>
+            <div></div>
+            <div></div>
+            <div></div>
           </div>
         </details>
 
