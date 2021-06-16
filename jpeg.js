@@ -237,7 +237,7 @@ function roundRegion(radius, x, y, width, height) {
 function nextGradient() {
   // Generate colours
   const palette = new ColorScheme()
-  palette.scheme("triade")
+  palette.scheme(ev("scheme")).variation(ev("variation"))
   return [
     rand(palette.colors()),
     rand(palette.colors()),

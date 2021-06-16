@@ -9,14 +9,15 @@
     <meta name="author" content="amy (amy.gg)" />
     <meta name="keywords" content="jpeg, png, carbon.now.sh, ray.so" />
     <meta name="robots" content="index, follow" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
     <link rel="icon" href="broken.webp" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet" />
-    <script defer
+    <script
+      defer
       src="https://cdnjs.cloudflare.com/ajax/libs/color-scheme/1.0.1/color-scheme.min.js"
       integrity="sha512-ydx5bZFmGCeWWXk49Il8XjyZmYJUfR8sQDGo8CUHvlcwNJ1B9PvRwZzil3/LpJn9s02BKEdWXDK+8vQKaij96A=="
       crossorigin="anonymous"
@@ -83,7 +84,7 @@
   <body>
     <header>
       <h1>jpeg.ink</h1>
-      <h2 style="margin-top: 0; font-size: 1.25rem;">
+      <h2 style="margin-top: 0; font-size: 1.25rem">
         <label for="file">select an image to make it pretty!</label>
       </h2>
     </header>
@@ -113,13 +114,7 @@
 
             <!-- second row -->
             <div class="nobottom">
-              <input
-                type="checkbox"
-                id="watermark"
-                checked
-                onchange="preview(window.id('file'))"
-                autocomplete="off"
-              />
+              <input type="checkbox" id="watermark" checked onchange="preview(window.id('file'))" autocomplete="off" />
             </div>
             <div>
               <select id="padding" onchange="preview(window.id('file'))" autocomplete="off">
@@ -140,16 +135,28 @@
               </select>
             </div>
             <div>
-              <input type="number" id="width" placeholder="width" autocomplete="off" onchange="preview(window.id('file'))" />
-              <input type="number" id="height" placeholder="height" autocomplete="off" onchange="preview(window.id('file'))" />
+              <input
+                type="number"
+                id="width"
+                placeholder="width"
+                autocomplete="off"
+                onchange="preview(window.id('file'))"
+              />
+              <input
+                type="number"
+                id="height"
+                placeholder="height"
+                autocomplete="off"
+                onchange="preview(window.id('file'))"
+              />
             </div>
 
             <!-- third row -->
             <div>
               <label for="shape">shape</label>
             </div>
-            <div></div>
-            <div></div>
+            <div><label for="scheme">scheme</label></div>
+            <div><label for="variation">variation</label></div>
             <div></div>
 
             <!-- fourth row -->
@@ -159,8 +166,24 @@
                 <option value="circle">circle</option>
               </select>
             </div>
-            <div></div>
-            <div></div>
+            <div>
+              <select id="scheme" onchange="cycleGradient();preview(window.id('file'))" autocomplete="off">
+                <option value="mono">mono</option>
+                <option value="contrast">contrast</option>
+                <option selected value="triade">triade</option>
+                <option value="tetrade">tetrade</option>
+                <option value="analogic">analogic</option>
+              </select>
+            </div>
+            <div>
+              <select id="variation" onchange="cycleGradient();preview(window.id('file'))" autocomplete="off">
+                <option selected value="pastel">pastel</option>
+                <option value="soft">soft</option>
+                <option value="light">light</option>
+                <option value="hard">hard</option>
+                <option value="pale">pale</option>
+              </select>
+            </div>
             <div></div>
           </div>
         </details>
@@ -193,7 +216,8 @@
         <details>
           <summary>how it works</summary>
           <p>
-            This was inspired by <a href="https://carbon.now.sh">carbon.now.sh</a> and <a href="https://ray.so">ray.so</a>.
+            This was inspired by <a href="https://carbon.now.sh">carbon.now.sh</a> and
+            <a href="https://ray.so">ray.so</a>.
           </p>
           <p>
             <strong>warning:</strong> jpeg images do <em>not</em> support transparency! they will have black behind the
